@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f8ad382c-5ee1-4e10-bf57-fd73016f644c" name="변경" comment="변경">
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/querydsl/src/main/java/study/querydsl/QuerydslApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/querydsl/src/main/java/study/querydsl/QuerydslApplication.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
