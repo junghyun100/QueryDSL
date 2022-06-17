@@ -47,7 +47,13 @@ public class QuerydslBasicTest {
     @Test
     public void startQuerydsl() {
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
-        QMember m = new QMember("m");
+
+        //     public static final QMember member = new QMember("member1");
+        /*
+        QMember qMember = new QMember("m"); //별칭 직접 지정
+        QMember qMember = QMember.member; //기본 인스턴스 사용
+         */
+        QMember m = QMember.member;
         Member findMember = queryFactory
                 .select(m)
                 .from(m)
