@@ -127,7 +127,11 @@ public class QuerydslBasicTest {
          * groupby having 절을 사용하는 등의 복잡한 쿼리 문에서 예외가 떠버리는 것으로 보이고
          *
          * 더불어 대부분의 dialect에서는 count쿼리가 유효하지만 JPQL에서는 아니란다.
-         * 그렇기 때문에 fetchResult보다는 fetch를 사용하고 따로 fetchCount를 사용하거나 list의 count를 사용하는것이 좋을 것 같다!
+         *
+         * https://www.inflearn.com/questions/23280?re_comment_id=156501
+         * 추가로 찾아본 정보에서 위 링크에서 보이는 이슈를 발견했다.
+         * fetchResult보다는 fetch를 사용하고,
+         * fetchCount보다는 Count 쿼리를 하나 따로만들어내거나, 조회된 list의 count를 사용하는것이 좋을 것 같다!
          */
     }
 }
