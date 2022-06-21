@@ -279,5 +279,26 @@ public class QuerydslBasicTest {
             System.out.println("tuple = " + tuple);
         }
     }
-    
+
+    /**
+    * 회원의 이름과 팀의 이름이 같은 대상 외부 조인
+     *
+     * 하이버네이트 5.1부터 on 을 사용해서 서로 관계가 없는 필드로 외부 조인하는 기능이 추가되었다.
+     * 주의! leftJoin() 부분에 일반 조인과 다르게 엔티티 하나만 들어간다.
+     * 일반조인: leftJoin(member.team, team)
+     * on조인: from(member).leftJoin(team).on(xxx)
+    */
+    @Test
+    public void join_on_no_relation() throws Exception {
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+        List<Tuple> result = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(team).on(member.username.eq(team.name))
+                .fetch();
+        for (Tuple tuple : result) {
+            System.out.println("t=" + tuple);
+        }
+    }
 }
