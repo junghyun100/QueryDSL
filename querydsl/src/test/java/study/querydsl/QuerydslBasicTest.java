@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import study.querydsl.dto.MemberDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
 import study.querydsl.entity.QTeam;
@@ -516,4 +517,25 @@ public class QuerydslBasicTest {
             System.out.println("age=" + age);
         }
     }
+
+    /**
+     * 순수 JPA에서 DTO를 조회할 때는 new 명령어를 사용해야함
+     * DTO의 package이름을 다 적어줘야해서 지저분함
+     * 생성자 방식만 지원함
+     */
+    @Test
+    public void findDtoByJPQL() {
+        List<MemberDto> result = em.createQuery(
+                        "select new study.querydsl.dto.MemberDto(m.username, m.age) " +
+                                "from Member m", MemberDto.class)
+                .getResultList();
+    }
+
+    /**
+     * 결과를 DTO 반환할 때 사용
+     * 다음 3가지 방법 지원한다.
+     * 프로퍼티 접근
+     * 필드 직접 접근
+     * 생성자 사용
+     */
 }
