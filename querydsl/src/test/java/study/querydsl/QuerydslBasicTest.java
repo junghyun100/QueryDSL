@@ -1,6 +1,8 @@
 package study.querydsl;
+
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -234,7 +236,6 @@ public class QuerydslBasicTest {
      * join() , innerJoin() : 내부 조인(inner join)
      * leftJoin() : left 외부 조인(left outer join)
      * rightJoin() : rigth 외부 조인(rigth outer join)
-     *
      */
     @Test
     public void join() throws Exception {
@@ -294,7 +295,7 @@ public class QuerydslBasicTest {
      * 주의! leftJoin() 부분에 일반 조인과 다르게 엔티티 하나만 들어간다.
      * 일반조인: leftJoin(member.team, team)
      * on조인: from(member).leftJoin(team).on(xxx)
-    */
+     */
     @Test
     public void join_on_no_relation() throws Exception {
         em.persist(new Member("teamA"));
@@ -398,17 +399,18 @@ public class QuerydslBasicTest {
         assertThat(result).extracting("age")
                 .containsExactly(20, 30, 40);
     }
-/**
-    * from 절의 서브쿼리 한계
-    * JPA JPQL 서브쿼리의 한계점으로 from 절의 서브쿼리(인라인 뷰)는 지원하지 않는다.
-    * 당연히 Querydsl도 지원하지 않는다.
-    * 하이버네이트 구현체를 사용하면 select 절의 서브쿼리는 지원한다.
-    * Querydsl도 하이버네이트 구현체를 사용하면 select 절의 서브쿼리를 지원한다.
-    * from 절의 서브쿼리 해결방안
-    * 1. 서브쿼리를 join으로 변경한다. (가능한 상황도 있고, 불가능한 상황도 있다.)
-    * 2. 애플리케이션에서 쿼리를 2번 분리해서 실행한다.
-    * 3. nativeSQL을 사용한다
-    */
+
+    /**
+     * from 절의 서브쿼리 한계
+     * JPA JPQL 서브쿼리의 한계점으로 from 절의 서브쿼리(인라인 뷰)는 지원하지 않는다.
+     * 당연히 Querydsl도 지원하지 않는다.
+     * 하이버네이트 구현체를 사용하면 select 절의 서브쿼리는 지원한다.
+     * Querydsl도 하이버네이트 구현체를 사용하면 select 절의 서브쿼리를 지원한다.
+     * from 절의 서브쿼리 해결방안
+     * 1. 서브쿼리를 join으로 변경한다. (가능한 상황도 있고, 불가능한 상황도 있다.)
+     * 2. 애플리케이션에서 쿼리를 2번 분리해서 실행한다.
+     * 3. nativeSQL을 사용한다
+     */
 
 
     @Test
@@ -529,6 +531,9 @@ public class QuerydslBasicTest {
                         "select new study.querydsl.dto.MemberDto(m.username, m.age) " +
                                 "from Member m", MemberDto.class)
                 .getResultList();
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
     }
 
     /**
@@ -538,4 +543,43 @@ public class QuerydslBasicTest {
      * 필드 직접 접근
      * 생성자 사용
      */
+
+    @Test
+    public void findDtoBySettrer() {
+        List<MemberDto> result = queryFactory
+                .select(Projections.bean(MemberDto.class, // getter setter로 데이터를 injection해주는 bean
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    @Test
+    public void findDtoByField() {
+        List<MemberDto> result = queryFactory
+                .select(Projections.fields(MemberDto.class, // 필드를 이용해 dto 가져오기
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    @Test
+    public void findDtoByConstructor() {
+        List<MemberDto> result = queryFactory
+                .select(Projections.constructor(MemberDto.class, // 필드를 이용해 dto 가져오기
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
 }
