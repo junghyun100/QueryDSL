@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
+import study.querydsl.dto.QMemberDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
 import study.querydsl.entity.QTeam;
@@ -578,6 +579,19 @@ public class QuerydslBasicTest {
                         member.age))
                 .from(member)
                 .fetch();
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    @Test
+    public void findDtoByQueryProjection() {
+        List<MemberDto> result = queryFactory
+                .select(new QMemberDto(member.username, member.age)) // QMemeberDto의 내부에 파라미터가 2개 인데 3개를 하는경웅 실제 호출했을때만 오류를 발견할수있다.
+                    // 쿼리프로젝션을 사용하면 코드 작성시에 바로 알아차릴수 있다.
+                .from(member)
+                .fetch();
+
         for (MemberDto memberDto : result) {
             System.out.println("memberDto = " + memberDto);
         }
