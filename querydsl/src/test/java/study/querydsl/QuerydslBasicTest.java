@@ -14,6 +14,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
 import study.querydsl.dto.QMemberDto;
@@ -658,19 +659,43 @@ public class QuerydslBasicTest {
     @Commit
     public void bulkUpdate() {
         long count = queryFactory
-          .update(member)
-          .set(member.username, "비회원") 
-          .where(member.age.lt(28)) 
-          .execute();
-        
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+
         em.flush();
         em.clear();
-        
+
         List<Member> result = queryFactory
-            .selectFrom(member)
-            .fetch();
-        
-        for(Member member1 : result) {
+                .selectFrom(member)
+                .fetch();
+
+        for (Member member1 : result) {
             System.out.println("member1 = " + member1);
         }
+    }
+    @Test
+    public void sqlFunction() {
+        // member M으로 변경하는 replace 함수 사용
+        List<String> result = queryFactory
+                .select(Expressions.stringTemplate("function('replace', {0}, {1}, {2})", member.username, "member", "M"))
+                .from(member)
+                .fetch();
+        for(String s : result ) {
+            System.out.println("s = " + s);
+        }
+    }
+    @Test
+    public void sqlFunction2() {
+        // 소문자로 변경해서 비교
+        List<String> result = queryFactory.select(member.username)
+                .from(member)
+                .where(member.username.eq(Expressions.stringTemplate("function('lower', {0})",
+                        member.username)))
+                .fetch();
+        for(String s : result ) {
+            System.out.println("s = " + s);
+        }
+    }
 }
