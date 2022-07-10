@@ -6,17 +6,19 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import javax.persistence.EntityManager;
-import java.util.stream.Stream;
+import javax.persistence.PersistenceContext;
 
 @SpringBootApplication
 public class QuerydslApplication {
+	@PersistenceContext
+	EntityManager em;
 
-	public static void main(String[] args) {
-		SpringApplication.run(QuerydslApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(QuerydslApplication.class, args);
+    }
 
-	@Bean
-	JPAQueryFactory jpaQueryFactory(EntityManager em) {
-		return new JPAQueryFactory(em);
-	}
+    @Bean
+    JPAQueryFactory jpaQueryFactory() {
+        return new JPAQueryFactory(em);
+    }
 }
