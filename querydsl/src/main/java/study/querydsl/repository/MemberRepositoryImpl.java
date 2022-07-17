@@ -85,8 +85,41 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         return new PageImpl<>(results, pageable, total);
     }
 
+    /**
+     * 복잡한 페이징
+     * 데이터 조회 쿼리와, 전체 카운트 쿼리를 분리
+     */
     @Override
-    public Page<MemberTeamDto> searchPageComplex(MemberSearchCondition condition, Pageable pageable) {
-        return null;
+    public Page<MemberTeamDto> searchPageComplex(MemberSearchCondition condition,
+                                                 Pageable pageable) {
+        List<MemberTeamDto> content = queryFactory
+                .select(new QMemberTeamDto(
+                        member.id,
+                        member.username,
+                        member.age,
+                        team.id,
+                        team.name))
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(usernameEq(condition.getUsername()),
+                        teamNameEq(condition.getTeamName()),
+                        ageGoe(condition.getAgeGoe()),
+                        ageLoe(condition.getAgeLoe()))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+        long total = queryFactory
+                .select(member)
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(usernameEq(condition.getUsername()),
+                        teamNameEq(condition.getTeamName()),
+                        ageGoe(condition.getAgeGoe()),
+                        ageLoe(condition.getAgeLoe()))
+                .fetch().size();
+        // fetchCount() 대신 fetch().size() 로 동일한 결과를 얻을 수 있다고 설명한다.
+        // 서비스의 크기에 따라 적절한 방법으로 count 를 받아와야 하므로 이에 대한 고민이 필요할 것 같다.
+        return new PageImpl<>(content, pageable, total);
     }
+
 }
