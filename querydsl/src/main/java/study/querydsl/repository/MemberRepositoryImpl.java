@@ -2,13 +2,16 @@ package study.querydsl.repository;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import study.querydsl.dto.MemberSearchCondition;
 import study.querydsl.dto.MemberTeamDto;
 import study.querydsl.dto.QMemberTeamDto;
+import study.querydsl.entity.Member;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -79,10 +82,25 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-        long total = results.stream().count();
-        //fetchResult나 fetchCount는 사용하지않고있으므로
+        // long total = results.stream().count();
+        // fetchResult나 fetchCount는 사용하지않고있으므로
         // fetch와 stream.count를 사용해 반환하는 식으로 진행하고자함.
-        return new PageImpl<>(results, pageable, total);
+
+        // return new PageImpl<>(results, pageable, total);
+
+        // PageableExecutionUtils를 이용한 countQuery 쿼리가 생략가능한 경우
+        // 1. 페이지 시작이면서 컨텐츠 사이즈가 페이지 사이즈보다 적을경우
+        // 2. 마지막 페이지 일 때
+        JPAQuery<Member> countQuery = queryFactory
+                .select(member)
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(usernameEq(condition.getUsername()),
+                        teamNameEq(condition.getTeamName()),
+                        ageGoe(condition.getAgeGoe()),
+                        ageLoe(condition.getAgeLoe())
+                );
+        return PageableExecutionUtils.getPage(results, pageable, ()-> countQuery.fetch().size());
     }
 
     /**
