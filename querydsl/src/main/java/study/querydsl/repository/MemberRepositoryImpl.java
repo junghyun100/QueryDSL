@@ -7,6 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.data.support.PageableExecutionUtils;
 import study.querydsl.dto.MemberSearchCondition;
 import study.querydsl.dto.MemberTeamDto;
@@ -20,8 +21,27 @@ import static org.springframework.util.StringUtils.hasText;
 import static org.springframework.util.StringUtils.isEmpty;
 import static study.querydsl.entity.QMember.member;
 import static study.querydsl.entity.QTeam.team;
-
+// extends QuerydslRepositorySupport
 public class MemberRepositoryImpl implements MemberRepositoryCustom {
+    /**
+     * Creates a new {@link QuerydslRepositorySupport} instance for the given domain type.
+     * QuerydslRepositorySupport가 추상클래스이기 떄문에 아래에 주석처리한 부분을 제공을 해줌
+     *
+     * 장점
+     * getQuerydsl().applyPagination() 스프링 데이터가 제공하는 페이징을 Querydsl로 편리하게 변환
+     * EntityManager 제공
+     *
+     * 한계
+     * Querydsl 3.x 버전을 대상으로 만듬
+     * Querydsl 4.x에 나온 JPAQueryFactory로 시작할 수 없음
+     * select로 시작할 수 없음 (from으로 시작해야함)
+     * QueryFactory 를 제공하지 않음
+     * 스프링 데이터 Sort 기능이 정상 동작하지 않음
+     *
+     */
+//    public MemberRepositoryImpl() {
+//        super(Member.class);
+//    }
     private final JPAQueryFactory queryFactory;
 
     public MemberRepositoryImpl(EntityManager em) {
@@ -31,6 +51,22 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     @Override
     //회원명, 팀명, 나이(ageGoe, ageLoe)
     public List<MemberTeamDto> search(MemberSearchCondition condition) {
+
+//        List<MemberTeamDto> result = from(member)
+//                .leftJoin(member.team, team)
+//                .where(usernameEq(condition.getUsername()),
+//                        teamNameEq(condition.getTeamName()),
+//                        ageGoe(condition.getAgeGoe()),
+//                        ageLoe(condition.getAgeLoe()))
+//                .select(new QMemberTeamDto(
+//                        member.id,
+//                        member.username,
+//                        member.age,
+//                        team.id,
+//                        team.name))
+//                .fetch();
+
+
         return queryFactory
                 .select(new QMemberTeamDto(
                         member.id,
